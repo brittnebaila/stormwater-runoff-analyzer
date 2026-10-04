@@ -1,6 +1,8 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
+print("ANALYZER STARTED")
+
 df = pd.read_csv("data/mercer_creek_streamflow.csv")
 
 df["Collect Date (local)"] = pd.to_datetime(
@@ -47,7 +49,28 @@ print(round(high_flow_threshold, 2), "cfs")
 print("\nHigh Flow Events:")
 print(high_flow_events[["date", "streamflow_cfs"]])
 
+rainfall = pd.read_csv(
+    "data/bellevue_rainfall.csv",
+    usecols=[0, 1, 2, 3]
+)
 
+rainfall["Collect Date (local)"] = pd.to_datetime(
+    rainfall["Collect Date (local)"]
+)
+
+rainfall = rainfall.rename(columns={
+    "Collect Date (local)": "date",
+    "Precipitation (inches)": "precipitation_in"
+})
+
+combined = pd.merge(
+    df,
+    rainfall[["date", "precipitation_in"]],
+    on="date"
+)
+
+print("\nCombined Rainfall and Streamflow Data:")
+print(combined.head())
 
 plt.figure(figsize=(12, 6))
 
