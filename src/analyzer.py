@@ -72,6 +72,117 @@ combined = pd.merge(
 print("\nCombined Rainfall and Streamflow Data:")
 print(combined.head())
 
+correlation = combined["precipitation_in"].corr(
+    combined["streamflow_cfs"]
+)
+
+print("\nRainfall vs Streamflow Correlation:")
+print(round(correlation, 3))
+
+combined["rainfall_lag_1"] = combined["precipitation_in"].shift(1)
+combined["rainfall_lag_2"] = combined["precipitation_in"].shift(2)
+
+lag_1_correlation = combined["rainfall_lag_1"].corr(
+    combined["streamflow_cfs"]
+)
+
+lag_2_correlation = combined["rainfall_lag_2"].corr(
+    combined["streamflow_cfs"]
+)
+
+print("\n1-Day Lag Correlation:")
+print(round(lag_1_correlation, 3))
+
+print("\n2-Day Lag Correlation:")
+print(round(lag_2_correlation, 3))
+
+wettest_day = combined.loc[
+    combined["precipitation_in"].idxmax()
+]
+
+wettest_date = wettest_day["date"]
+
+next_day = combined[
+    combined["date"] == wettest_date + pd.Timedelta(days=1)
+]
+
+print("\nWettest Day:")
+print(
+    wettest_day[
+        ["date", "precipitation_in", "streamflow_cfs"]
+    ]
+)
+
+print("\nStreamflow One Day Later:")
+print(
+    next_day[
+        ["date", "streamflow_cfs"]
+    ]
+)
+
+peak_flow_day = combined.loc[
+    combined["streamflow_cfs"].idxmax()
+]
+
+peak_date = peak_flow_day["date"]
+
+previous_day = combined[
+    combined["date"] == peak_date - pd.Timedelta(days=1)
+]
+
+print("\nPeak Streamflow Day:")
+print(
+    peak_flow_day[
+        ["date", "precipitation_in", "streamflow_cfs"]
+    ]
+)
+
+print("\nRainfall One Day Before Peak Flow:")
+print(
+    previous_day[
+        ["date", "precipitation_in", "streamflow_cfs"]
+    ]
+)
+
+fig, (ax1, ax2) = plt.subplots(
+    2,
+    1,
+    figsize=(12, 8),
+    sharex=True
+)
+
+ax1.bar(
+    combined["date"],
+    combined["precipitation_in"]
+)
+
+ax1.set_title("Bellevue Rainfall and Mercer Creek Streamflow")
+ax1.set_ylabel("Precipitation (inches)")
+
+ax2.plot(
+    combined["date"],
+    combined["streamflow_cfs"]
+)
+
+ax2.axhline(
+    y=high_flow_threshold,
+    linestyle="--",
+    label="90th Percentile Threshold"
+)
+
+ax2.set_xlabel("Date")
+ax2.set_ylabel("Streamflow (cfs)")
+ax2.legend()
+
+plt.tight_layout()
+
+plt.savefig(
+    "output/rainfall_streamflow_combined.png",
+    dpi=150
+)
+
+plt.show()
+
 plt.figure(figsize=(12, 6))
 
 plt.plot(
@@ -96,3 +207,50 @@ plt.tight_layout()
 plt.savefig("output/mercer_creek_streamflow.png")
 
 plt.show()
+
+plt.figure(figsize=(8, 6))
+
+plt.scatter(
+    combined["precipitation_in"],
+    combined["streamflow_cfs"]
+)
+
+plt.title("Rainfall vs Mercer Creek Streamflow")
+plt.xlabel("Daily Precipitation (inches)")
+plt.ylabel("Streamflow (cfs)")
+
+plt.tight_layout()
+
+plt.savefig("output/rainfall_vs_streamflow.png")
+
+plt.show()
+
+correlation_labels = [
+    "Same Day",
+    "1-Day Lag",
+    "2-Day Lag"
+]
+
+correlation_values = [
+    correlation,
+    lag_1_correlation,
+    lag_2_correlation
+]
+
+plt.figure(figsize=(8, 5))
+
+plt.bar(
+    correlation_labels,
+    correlation_values
+)
+
+plt.title("Rainfall vs Streamflow Correlation")
+plt.xlabel("Rainfall Timing")
+plt.ylabel("Correlation")
+
+plt.tight_layout()
+
+plt.savefig("output/correlation_comparison.png")
+
+plt.show()
+
