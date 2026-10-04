@@ -144,6 +144,32 @@ print(
     ]
 )
 
+summary = pd.DataFrame({
+    "metric": [
+        "average_streamflow_cfs",
+        "peak_streamflow_cfs",
+        "high_flow_threshold_cfs",
+        "same_day_correlation",
+        "one_day_lag_correlation",
+        "two_day_lag_correlation"
+    ],
+    "value": [
+        round(average_flow, 2),
+        round(highest_flow["streamflow_cfs"], 2),
+        round(high_flow_threshold, 2),
+        round(correlation, 3),
+        round(lag_1_correlation, 3),
+        round(lag_2_correlation, 3)
+    ]
+})
+
+summary.to_csv(
+    "output/hydrology_summary.csv",
+    index=False
+)
+
+print("\nHydrology summary exported to output/hydrology_summary.csv")
+
 fig, (ax1, ax2) = plt.subplots(
     2,
     1,

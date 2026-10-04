@@ -1,0 +1,7 @@
+metric,value
+average_streamflow_cfs,19.71
+peak_streamflow_cfs,170.7
+high_flow_threshold_cfs,43.56
+same_day_correlation,0.618
+one_day_lag_correlation,0.731
+two_day_lag_correlation,0.412
